@@ -60,7 +60,7 @@ verify:
 run-frida:
 	@$(FRIDA) -D emulator-5554 \
 		-f $(PACKAGE) \
-		-l ass_cracker.java
+		-l frida_settings.java
 
 stop:
 	@adb emu kill
