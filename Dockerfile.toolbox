@@ -1,0 +1,28 @@
+FROM python:3.12-slim
+
+ARG FRIDA_VERSION=17.18.0
+ARG JADX_VERSION=1.5.3
+
+RUN apt-get update && apt-get install -y \
+    adb \
+    curl \
+    unzip \
+    xz-utils \
+    openjdk-21-jre-headless \
+    make \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip install --no-cache-dir \
+    "frida==${FRIDA_VERSION}" \
+    frida-tools
+
+RUN curl -L \
+    "https://github.com/skylot/jadx/releases/download/v${JADX_VERSION}/jadx-${JADX_VERSION}.zip" \
+    -o /tmp/jadx.zip \
+    && mkdir -p /opt/jadx \
+    && unzip /tmp/jadx.zip -d /opt/jadx \
+    && rm /tmp/jadx.zip
+
+ENV PATH="/opt/jadx/bin:${PATH}"
+
+WORKDIR /workspace
