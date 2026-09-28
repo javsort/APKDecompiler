@@ -3,7 +3,8 @@
 set -euo pipefail
 
 PACKAGE="pt.sibs.android.mbway"
-FRIDA_PS="./env/bin/frida-ps"
+FRIDA_PS="frida-ps"
+ADB="adb -s emulator:5555"
 
 echo "=== Verifying research environment ==="
 
@@ -21,7 +22,7 @@ echo "[+] adb found."
 echo
 echo "[2/6] Checking emulator..."
 
-if ! adb get-state >/dev/null 2>&1; then
+if ! $ADB get-state >/dev/null 2>&1; then
     echo "[!] No Android device connected."
     exit 1
 fi
@@ -32,10 +33,10 @@ echo "[+] Android device connected."
 echo
 echo "[3/6] Checking Android configuration..."
 
-ABI="$(adb shell getprop ro.product.cpu.abi | tr -d '\r')"
-ABI_LIST="$(adb shell getprop ro.product.cpu.abilist | tr -d '\r')"
-BRIDGE="$(adb shell getprop ro.dalvik.vm.native.bridge | tr -d '\r')"
-ANDROID_VERSION="$(adb shell getprop ro.build.version.release | tr -d '\r')"
+ABI="$($ADB shell getprop ro.product.cpu.abi | tr -d '\r')"
+ABI_LIST="$($ADB shell getprop ro.product.cpu.abilist | tr -d '\r')"
+BRIDGE="$($ADB shell getprop ro.dalvik.vm.native.bridge | tr -d '\r')"
+ANDROID_VERSION="$($ADB shell getprop ro.build.version.release | tr -d '\r')"
 
 echo "Android version: $ANDROID_VERSION"
 echo "System ABI:      $ABI"
@@ -61,13 +62,13 @@ echo "Native bridge:   $BRIDGE"
 echo
 echo "[4/6] Checking MB WAY..."
 
-if ! adb shell pm path "$PACKAGE" >/dev/null 2>&1; then
+if ! $ADB shell pm path "$PACKAGE" >/dev/null 2>&1; then
     echo "[!] MB WAY is not installed."
     exit 1
 fi
 
 APP_ABI="$(
-    adb shell dumpsys package "$PACKAGE" |
+    $ADB shell dumpsys package "$PACKAGE" |
         grep 'primaryCpuAbi=' |
         head -n1 |
         cut -d= -f2 |
@@ -85,9 +86,8 @@ echo "MB WAY ABI: $APP_ABI"
 echo
 echo "[5/6] Checking Frida installation..."
 
-if [ ! -x "$FRIDA_PS" ]; then
-    echo "[!] Frida tools not found in ./env."
-    echo "    Run: make setup-frida"
+if ! command -v "$FRIDA_PS" >/dev/null 2>&1; then
+    echo "[!] Frida tools are missing from the toolbox container."
     exit 1
 fi
 
