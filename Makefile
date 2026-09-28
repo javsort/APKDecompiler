@@ -25,7 +25,7 @@ up:
 	@echo "[+] Starting containerized lab..."
 	@docker compose up -d
 	@echo "[+] Waiting for emulator health..."
-	@until [ "$$(docker inspect -f '{{.State.Health.Status}}' mbway_emu_setup-emulator-1 2>/dev/null)" = "healthy" ]; do \
+	@until [ "$$(docker inspect -f '{{.State.Health.Status}}' $$(docker compose ps -q emulator) 2>/dev/null)" = "healthy" ]; do \
 		sleep 2; \
 	done
 	@$(MAKE) connect
