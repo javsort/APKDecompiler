@@ -46,17 +46,25 @@ down:
 	@echo "[+] Stopping lab..."
 	@docker compose down
 
-setup: up install-app setup-frida verify
+setup: up install-og-app setup-frida verify
 	@echo
 	@echo "[+] Environment ready."
 
-install-app:
+install-modified-app:
 	@echo "[+] Installing MB WAY..."
 	@$(ADB) install-multiple -r \
-		/workspace/apks/base.apk \
-		/workspace/apks/split_config.arm64_v8a.apk \
-		/workspace/apks/split_config.nl.apk \
-		/workspace/apks/split_config.xxhdpi.apk
+		/workspace/apks/modified/base.apk \
+		/workspace/apks/modified/split_config.arm64_v8a.apk \
+		/workspace/apks/modified/split_config.nl.apk \
+		/workspace/apks/modified/split_config.xxhdpi.apk
+
+install-og-app:
+	@echo "[+] Installing MB WAY..."
+	@$(ADB) install-multiple -r \
+		/workspace/apks/og/base.apk \
+		/workspace/apks/og/split_config.arm64_v8a.apk \
+		/workspace/apks/og/split_config.en.apk \
+		/workspace/apks/og/split_config.xxhdpi.apk
 
 setup-frida:
 	@echo "[+] Setting up Frida..."
